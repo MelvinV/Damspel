@@ -1,0 +1,29 @@
+@CHARSET "ISO-8859-1";
+
+.WITVAKJE{
+	-fx-background-color: white;
+}
+
+.ZWARTVAKJE{
+	-fx-background-color: #333333;
+}
+
+.WIT{
+	/*gebruik .. in de url zodat hij 1 folder terug gaat, hij zit bij default namelijk in de CSS map te zoeken*/
+	-fx-background-image: url("../afbeeldingen/WitteSteen.png");
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center center;
+	-fx-background-size: 35 35;
+}
+
+.ZWART{
+	-fx-background-image: url("../afbeeldingen/ZwarteSteen.png");
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center center;
+	-fx-background-size: 35 35;
+}
+
+.FOCUS{
+    -fx-border-color: red;
+    -fx-border-width: 3px;
+}
