@@ -5,13 +5,9 @@ public class Speler {
 	private boolean laatste_zet;
 	private int[] selectie = new int[2];
 	
-	public Speler(String nm, int as, boolean lz)
+	public Speler(String naam, int aantal_stenen, boolean laatste_zet)
 	{
-		naam = nm;
-		aantal_stenen = as;
-		laatste_zet = lz;
-		selectie[0] = -1;
-		selectie[1] = -1;
+		spelerReset(naam, aantal_stenen, laatste_zet);
 	}
 	
 	public void verliesSteen()
@@ -48,6 +44,7 @@ public class Speler {
 	{
 		return naam;
 	}
+
 	public void spelerReset(String nm, int as, boolean lz)
 	{
 		naam = nm;

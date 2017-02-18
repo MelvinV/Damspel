@@ -10,7 +10,7 @@ public class Damspel {
 	private final String witnaam = "WIT";
 	private final String zwartnaam = "ZWART";
 	private final int stenen_per_speler = 20;
-	private ArrayList<String> status = new ArrayList<String>(100);
+	private ArrayList<BoardTileStatus> status = new ArrayList<BoardTileStatus>(100);
 	private boolean doFocus, confirm, forcelock;
 	
 	// Define a variable to store the property
@@ -28,7 +28,7 @@ public class Damspel {
 		zwart.spelerReset(zwartnaam, stenen_per_speler, true);
 	}
 	
-	public String getVeldStatus(int veldId)
+	public BoardTileStatus getVeldStatus(int veldId)
 	{
 		return status.get(veldId);
 	}
@@ -44,23 +44,21 @@ public class Damspel {
 	
 	public boolean isVeldSpeelbaar(int veldId)
 	{
-		int selectie1 = getSpelerObject().getSelectie(0);
+		int selectie = getSpelerObject().getSelectie(0);
 		boolean isWhitePlayer = getSpeler().equals("WIT");
-		//if(isWhitePlayer) String tegenstander = 
-		String tegenstander = isWhitePlayer ? "ZWART" : "WIT";	
-		if(selectie1 != -1)
+		if(selectie != -1)
 		{
 			if(status.get(veldId).equals("LEEG")) 
 			{ 
 				//speler probeert 1 stap vooruit te gaan...
 				//de witte mag alleen achteruit gaan qua button-telling, de zwarte alleen vooruit...
-				if((isWhitePlayer && (selectie1-11 == veldId || selectie1-9 == veldId)) || (!isWhitePlayer && (selectie1+11 == veldId || selectie1+9 == veldId)))
+				if((isWhitePlayer && (selectie-11 == veldId || selectie-9 == veldId)) || (!isWhitePlayer && (selectie+11 == veldId || selectie+9 == veldId)))
 				{
 					if(!kanSteenAfpakken())
 					{
 						setfoutmelding("U heeft een gewone zet gedaan.");
 						getSpelerObject().setSelectie(1, veldId);
-						doeZet(selectie1, veldId, true, false); 
+						doeZet(selectie, veldId, true, false);
 						return true; 
 					}
 					else
@@ -68,28 +66,24 @@ public class Damspel {
 						setfoutmelding("U kunt een steen van de tegenstander afpakken, daarom mag u geen gewone zet doen.");
 					}
 				}
-			
-				//speler probeert over tegenstanders dam heen te gaan (2 stappen vooruit/achteruit).
-				if((status.get(selectie1-11).equals(tegenstander) && selectie1-22 == veldId)  
-				|| (status.get(selectie1+11).equals(tegenstander) && selectie1+22 == veldId) 
-				|| (status.get(selectie1-9).equals(tegenstander) && selectie1-18 == veldId) 
-				|| (status.get(selectie1+9).equals(tegenstander) && selectie1+18 == veldId))
+
+				if(spelerProbeertTeSlaan(veldId))
 				{
 					setfoutmelding("Tegenstanders steen succesvol weggespeeld.");
 					//je moet de tussendam verwijderen van het spelbord. de code hieronder bepaald de locatie ervan.
-					int index = (selectie1 > veldId) ? veldId+((selectie1-veldId)/2) : selectie1+((veldId-selectie1)/2);
+					int index = (selectie > veldId) ? veldId+((selectie-veldId)/2) : selectie+((veldId-selectie)/2);
 					System.out.println(index+"");
-					status.set(index, "LEEG");
+					status.set(index, BoardTileStatus.LEEG);
 					getTegenStanderObject().verliesSteen();
 					
 					getSpelerObject().setSelectie(1, veldId);
-					doeZet(selectie1, veldId, false, true);
+					doeZet(selectie, veldId, false, true);
 					doFocus = true;
 					return true;
 				}
 			}
 			//als de speler weer op hetzelfde knopje drukt (waar al focus op zat)
-			if(selectie1 == veldId) 
+			if(selectie == veldId)
 			{ 
 				if(forcelock)
 				{
@@ -115,6 +109,19 @@ public class Damspel {
 		}
 		return false;
 	}
+
+	public boolean spelerProbeertTeSlaan(int veldId)
+	{
+		int selectie = getSpelerObject().getSelectie(0);
+		boolean isWhitePlayer = getSpeler().equals("WIT");
+		String tegenstander = isWhitePlayer ? "ZWART" : "WIT";
+
+		//speler probeert over tegenstanders dam heen te gaan (2 stappen vooruit/achteruit).
+		return (status.get(selectie-11).equals(tegenstander) && selectie-22 == veldId)
+				|| (status.get(selectie+11).equals(tegenstander) && selectie+22 == veldId)
+				|| (status.get(selectie-9).equals(tegenstander) && selectie-18 == veldId)
+				|| (status.get(selectie+9).equals(tegenstander) && selectie+18 == veldId);
+	}
 	
 	//flipzet is false wanneer de speler een dam afpakt... hij blijft dan aan de beurt.
 	public boolean doeZet(int vanVeldId, int naarVeldId, boolean flipZet, boolean lock)
@@ -122,19 +129,11 @@ public class Damspel {
 		forcelock = lock;
 		
 		//update de arraylist... als deze functie true returned zal DamspelApp de array uitlezen.
-		status.set(vanVeldId, "LEEG");
+		status.set(vanVeldId, BoardTileStatus.LEEG);
 		status.set(naarVeldId, getSpeler());
-		
-		if(!lock)
-		{
-			getSpelerObject().setSelectie(0, -1);
-			getSpelerObject().setSelectie(1, -1);
-		}
-		else
-		{
-			getSpelerObject().setSelectie(0, naarVeldId);
-			getSpelerObject().setSelectie(1, -1);
-		}
+
+		getSpelerObject().setSelectie(0, lock ? naarVeldId : -1);
+		getSpelerObject().setSelectie(1, -1);
 		
 		if(flipZet)
 		{
@@ -151,17 +150,16 @@ public class Damspel {
 	
 	public Speler getSpecifiekeSpeler(int index)
 	{
-		if(index >= 0 && index < 2)
+		if(index == 0 || index == 1)
 		{
-		 if(index == 0) return wit;
-		 if(index == 1) return zwart;
+			return index == 0 ? wit : zwart;
 		} 
 		return null;
 	}
 	
-	public String getSpeler()
+	public BoardTileStatus getSpeler()
 	{
-		return wit.getLaatsteZet() ? "ZWART" : "WIT";
+		return wit.getLaatsteZet() ? BoardTileStatus.ZWART : BoardTileStatus.WIT;
 	}
 	
 	public Speler getSpelerObject()
@@ -171,15 +169,15 @@ public class Damspel {
 	
 	public Speler getTegenStanderObject()
 	{
-		return getSpeler().equals("WIT") ? zwart : wit;
+		return getSpeler() == BoardTileStatus.WIT ? zwart : wit;
 	}
 	
-	public void addArray(String element)
+	public void addArray(BoardTileStatus element)
 	{
 		status.add(element);
 	}
 	
-	public String getArray(int index)
+	public BoardTileStatus getArray(int index)
 	{
 		return status.get(index);
 	}
@@ -188,7 +186,7 @@ public class Damspel {
 	{
 		return status.size();
 	}
-	public void setArray(int index, String element)
+	public void setArray(int index, BoardTileStatus element)
 	{
 		status.set(index, element);
 	}
@@ -205,9 +203,9 @@ public class Damspel {
 	
 	public boolean kanSteenAfpakken()
 	{
-		String player = getSpeler();
-		boolean isWhitePlayer = player.equals("WIT");
-		String tegenstander = isWhitePlayer ? "ZWART" : "WIT";	
+		BoardTileStatus player = getSpeler();
+		boolean isWhitePlayer = player == BoardTileStatus.WIT;
+		BoardTileStatus tegenstander = isWhitePlayer ? BoardTileStatus.ZWART : BoardTileStatus.WIT;
 		int selectie = getSpelerObject().getSelectie(0);
 		
 		for(int i = 0; i < 100; i++)
@@ -215,10 +213,10 @@ public class Damspel {
 			if(status.get(i).equals(player))
 			{
 				//speler probeert over tegenstanders dam heen te gaan (2 stappen vooruit/achteruit).
-				if((i-22 > -1 && status.get(i-11).equals(tegenstander) && status.get(i-22) == "LEEG")  
-				|| (i+22 < 100 && status.get(i+11).equals(tegenstander) && status.get(i+22) == "LEEG") 
-				|| (i-18 > -1 && status.get(i-9).equals(tegenstander) && status.get(i-18) == "LEEG") 
-				|| (i+18 < 100 && status.get(i+9).equals(tegenstander) && status.get(i+18) == "LEEG"))
+				if((i-22 > -1 && status.get(i-11) == tegenstander && status.get(i-22) == BoardTileStatus.LEEG)
+				|| (i+22 < 100 && status.get(i+11) == tegenstander && status.get(i+22) == BoardTileStatus.LEEG)
+				|| (i-18 > -1 && status.get(i-9) == tegenstander && status.get(i-18) == BoardTileStatus.LEEG)
+				|| (i+18 < 100 && status.get(i+9) == tegenstander && status.get(i+18) == BoardTileStatus.LEEG))
 				{
 					if(forcelock && i == selectie) return true;
 					if(!forcelock) return true;
@@ -233,7 +231,7 @@ public class Damspel {
 	{
 		int selectie = getSpelerObject().getSelectie(0);
 		boolean isWhitePlayer = getSpeler().equals("WIT");
-		boolean kanGewoneZetDoen = (isWhitePlayer && (status.get(selectie-11) == "LEEG" || status.get(selectie-9) == "LEEG")) || (!isWhitePlayer && (status.get(selectie+11) == "LEEG" || status.get(selectie+9) == "LEEG"));
+		boolean kanGewoneZetDoen = (isWhitePlayer && (status.get(selectie-11) == BoardTileStatus.LEEG || status.get(selectie-9) == BoardTileStatus.LEEG)) || (!isWhitePlayer && (status.get(selectie+11) == BoardTileStatus.LEEG || status.get(selectie+9) == BoardTileStatus.LEEG));
 		
 		if(forcelock && !kanSteenAfpakken() && !kanGewoneZetDoen)
 		{
@@ -254,9 +252,9 @@ public class Damspel {
 	public String toString()
 	{
 		String s = "";
-		for(String element : status)
+		for(BoardTileStatus element : status)
 		{
-			s += element + ", ";
+			s += element.name() + ", ";
 		}
 		return s;
 	}

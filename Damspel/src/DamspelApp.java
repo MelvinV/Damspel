@@ -14,6 +14,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class DamspelApp extends Application implements EventHandler<ActionEvent> {
 	
 	private Damspel spel = new Damspel();
@@ -90,12 +94,12 @@ public class DamspelApp extends Application implements EventHandler<ActionEvent>
 			
 			//bepaald of het een wit of zwart vakje moet worden.
 			boolean check = ((i/10)%2 == 0 && i%2 == 0) || ((i/10)%2 == 1 && i%2 == 1);
-			String status = "";
-			if(check && i < 40) status = "ZWART";
-			else if(check && i > 59) status = "WIT"; 
-			else if(check) status = "LEEG"; 
-			if(!check) { status = "NIETSPEELBAAR"; /*buttons[i].setText("X");*/ }
-			buttons[i].getStyleClass().add(status);
+			BoardTileStatus status = null;
+			if(check && i < 40) status = BoardTileStatus.ZWART;
+			else if(check && i > 59) status = BoardTileStatus.WIT;
+			else if(check) status = BoardTileStatus.LEEG;
+			if(!check) { status = BoardTileStatus.NIETSPEELBAAR; /*buttons[i].setText("X");*/ }
+			buttons[i].getStyleClass().add(status == null ? "" : status.name());
 			
 			//als de array nog leeg is, dus je hebt het spel voor het eerst gerunt, dan moet je toevoegen aan de array, anders moet je index wijzigen
 			if(spel.getLength() == 100) spel.setArray(i, status);//als de array niet meer leeg is
@@ -147,10 +151,8 @@ public class DamspelApp extends Application implements EventHandler<ActionEvent>
 		labels[1].setText("Speler: " + spel.getSpelerObject().getNaam());
 		for(int i = 0; i < buttons.length-1; i++)
 		{
-			buttons[i].getStyleClass().remove("ZWART");
-			buttons[i].getStyleClass().remove("WIT");
-			buttons[i].getStyleClass().remove("FOCUS");
-			buttons[i].getStyleClass().add(spel.getArray(i));
+			buttons[i].getStyleClass().removeAll("ZWART", "WIT", "FOCUS");
+			buttons[i].getStyleClass().add(spel.getArray(i).name());
 		}
 	}
 	public static void main(String[] args) {
