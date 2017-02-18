@@ -45,10 +45,10 @@ public class Damspel {
 	public boolean isVeldSpeelbaar(int veldId)
 	{
 		int selectie = getSpelerObject().getSelectie(0);
-		boolean isWhitePlayer = getSpeler().equals("WIT");
+		boolean isWhitePlayer = getSpeler() == BoardTileStatus.WIT;
 		if(selectie != -1)
 		{
-			if(status.get(veldId).equals("LEEG")) 
+			if(status.get(veldId) == BoardTileStatus.LEEG)
 			{ 
 				//speler probeert 1 stap vooruit te gaan...
 				//de witte mag alleen achteruit gaan qua button-telling, de zwarte alleen vooruit...
@@ -100,8 +100,8 @@ public class Damspel {
 		}
 		else
 		{
-			//System.out.println(getSpeler().equals(getVeldStatus(veldId)));
-			if(getSpeler().equals(getVeldStatus(veldId)))
+			//System.out.println(getSpeler() == getVeldStatus(veldId));
+			if(getSpeler() == getVeldStatus(veldId))
 			{
 				getSpelerObject().setSelectie(0, veldId);
 				doFocus = true;
@@ -113,14 +113,14 @@ public class Damspel {
 	public boolean spelerProbeertTeSlaan(int veldId)
 	{
 		int selectie = getSpelerObject().getSelectie(0);
-		boolean isWhitePlayer = getSpeler().equals("WIT");
-		String tegenstander = isWhitePlayer ? "ZWART" : "WIT";
+        boolean isWhitePlayer = getSpeler() == BoardTileStatus.WIT;
+        BoardTileStatus tegenstander = isWhitePlayer ? BoardTileStatus.ZWART : BoardTileStatus.WIT;
 
 		//speler probeert over tegenstanders dam heen te gaan (2 stappen vooruit/achteruit).
-		return (status.get(selectie-11).equals(tegenstander) && selectie-22 == veldId)
-				|| (status.get(selectie+11).equals(tegenstander) && selectie+22 == veldId)
-				|| (status.get(selectie-9).equals(tegenstander) && selectie-18 == veldId)
-				|| (status.get(selectie+9).equals(tegenstander) && selectie+18 == veldId);
+		return (status.get(selectie-11) == tegenstander && selectie-22 == veldId)
+				|| (status.get(selectie+11) == tegenstander && selectie+22 == veldId)
+				|| (status.get(selectie-9) == tegenstander && selectie-18 == veldId)
+				|| (status.get(selectie+9) == tegenstander && selectie+18 == veldId);
 	}
 	
 	//flipzet is false wanneer de speler een dam afpakt... hij blijft dan aan de beurt.
@@ -210,7 +210,7 @@ public class Damspel {
 		
 		for(int i = 0; i < 100; i++)
 		{
-			if(status.get(i).equals(player))
+			if(status.get(i) == player)
 			{
 				//speler probeert over tegenstanders dam heen te gaan (2 stappen vooruit/achteruit).
 				if((i-22 > -1 && status.get(i-11) == tegenstander && status.get(i-22) == BoardTileStatus.LEEG)
@@ -230,7 +230,7 @@ public class Damspel {
 	public boolean vergeefBeurt()
 	{
 		int selectie = getSpelerObject().getSelectie(0);
-		boolean isWhitePlayer = getSpeler().equals("WIT");
+		boolean isWhitePlayer = getSpeler() == BoardTileStatus.WIT;
 		boolean kanGewoneZetDoen = (isWhitePlayer && (status.get(selectie-11) == BoardTileStatus.LEEG || status.get(selectie-9) == BoardTileStatus.LEEG)) || (!isWhitePlayer && (status.get(selectie+11) == BoardTileStatus.LEEG || status.get(selectie+9) == BoardTileStatus.LEEG));
 		
 		if(forcelock && !kanSteenAfpakken() && !kanGewoneZetDoen)
