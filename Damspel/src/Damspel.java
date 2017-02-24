@@ -18,8 +18,8 @@ public class Damspel {
 	
 	public Damspel()
 	{
-		 wit = new Speler(witnaam, stenen_per_speler, false);
-		 zwart = new Speler(zwartnaam, stenen_per_speler, true);
+		 wit = new SpelerBuilder().setNaam(witnaam).setAantal_stenen(stenen_per_speler).setLaatste_zet(false).createSpeler();
+		 zwart = new SpelerBuilder().setNaam(zwartnaam).setAantal_stenen(stenen_per_speler).setLaatste_zet(true).createSpeler();
 	}
 	
 	public void reset()

@@ -1,15 +1,20 @@
 
 public class Speler {
+	private final Person person = new Person();
 	private String naam;
 	private int aantal_stenen;
 	private boolean laatste_zet;
 	private int[] selectie = new int[2];
 	
-	public Speler(String naam, int aantal_stenen, boolean laatste_zet)
+	private Speler(String naam, int aantal_stenen, boolean laatste_zet)
 	{
 		spelerReset(naam, aantal_stenen, laatste_zet);
 	}
-	
+
+	public static Speler createSpeler(String naam, int aantal_stenen, boolean laatste_zet) {
+		return new Speler(naam, aantal_stenen, laatste_zet);
+	}
+
 	public void verliesSteen()
 	{
 		aantal_stenen--;
@@ -54,4 +59,11 @@ public class Speler {
 		selectie[1] = -1;
 	}
 
+	public int getAantal_ogen() {
+		return PersonImp.getAantal_ogen(person.aantal_ogen);
+	}
+
+	public void setAantal_ogen(int aantal_ogen) {
+		person.setAantal_ogen(aantal_ogen);
+	}
 }
