@@ -71,8 +71,8 @@ public class Damspel {
 				{
 					setfoutmelding("Tegenstanders steen succesvol weggespeeld.");
 					//je moet de tussendam verwijderen van het spelbord. de code hieronder bepaald de locatie ervan.
-					int index = (selectie > veldId) ? veldId+((selectie-veldId)/2) : selectie+((veldId-selectie)/2);
-					System.out.println(index+"");
+					int index = (selectie > veldId) ? veldId+0((selectie-veldId)/2) : selectie+((veldId-selectie)/2);
+					System.out.println(Integer.toString(index);
 					status.set(index, BoardTileStatus.LEEG);
 					getTegenStanderObject().verliesSteen();
 					
@@ -251,11 +251,12 @@ public class Damspel {
 	
 	public String toString()
 	{
-		String s = "";
+		StringBuilder s = new StringBuilder();
+
 		for(BoardTileStatus element : status)
 		{
-			s += element.name() + ", ";
+			s.append(element.name() + ", ");
 		}
-		return s;
+		return s.toString();
 	}
 }

@@ -133,7 +133,7 @@ public class DamspelApp extends Application implements EventHandler<ActionEvent>
 					}
 					if (spel.getDoFocus()) 
 					{
-						boolean useless_assignment = (buttons[i].getStyleClass().contains("FOCUS")) ? buttons[i].getStyleClass().remove("FOCUS") : buttons[i].getStyleClass().add("FOCUS");
+						//boolean useless_assignment = (buttons[i].getStyleClass().contains("FOCUS")) ? buttons[i].getStyleClass().remove("FOCUS") : buttons[i].getStyleClass().add("FOCUS");
 						spel.setDoFocus(false);
 					}
 					System.out.println("veld_clicked; index: " + i);
