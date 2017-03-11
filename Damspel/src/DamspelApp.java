@@ -1,3 +1,5 @@
+package src;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,16 +16,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 public class DamspelApp extends Application implements EventHandler<ActionEvent> {
-	
-	private Damspel spel = new Damspel();
+
+    public static final boolean BOOLEAN = ((i / 10) % 2 == 0 && i % 2 == 0) || ((i / 10) % 2 == 1 && i % 2 == 1);
+    private Damspel spel = new Damspel();
 	private Label[] labels = new Label[4];
 	private Button[] buttons = new Button[101];
-	private CheckBox cb1 = new CheckBox("Bord roteren"), cb2 = new CheckBox("Zetten bevestigen");
+	private CheckBox cb1 = new CheckBox("Bord roteren");
+	private CheckBox cb2 = new CheckBox("Zetten bevestigen");
 
 	public void start(Stage stage) {
 		
@@ -32,7 +32,8 @@ public class DamspelApp extends Application implements EventHandler<ActionEvent>
 		Scene scene = new Scene(root, 563, 432);
 
 		// vbox geset in left borderpane
-		VBox vbLeft = new VBox(), vbTop = new VBox();
+		VBox vbLeft = new VBox();
+        VBox vbTop = new VBox();
 		root.setLeft(vbLeft);
 		root.setTop(vbTop);
 		root.setPadding(new Insets(0, 5, 5, 8));
@@ -73,10 +74,8 @@ public class DamspelApp extends Application implements EventHandler<ActionEvent>
 		stage.setScene(scene);
 		stage.show();
 		scene.setOnKeyReleased(e -> { 
-			if(e.getCode() == KeyCode.ESCAPE) {
-				if(spel.vergeefBeurt()) { 
-					updateBord(); 
-				}
+			if(e.getCode() == KeyCode.ESCAPE && spel.vergeefBeurt()) {
+					updateBord();
 			} 
 		});
 		
@@ -91,61 +90,64 @@ public class DamspelApp extends Application implements EventHandler<ActionEvent>
 		{
 			//je moet eerst alle styleclassen verwijderen, anders heeft een button meerderen en werkt het spel niet meer na resetten.
 			buttons[i].getStyleClass().removeAll("ZWART", "WIT", "LEEG", "NIETSPEELBAAR", "ZWARTVAKJE", "WITVAKJE");
+            DecideColor decideColor = new DecideColor(i).invoke();
+            BoardTileStatus status = decideColor.getStatus();
+            boolean check = decideColor.isCheck();
+
+
+            //als de array nog leeg is, dus je hebt het spel voor het eerst gerunt, dan moet je toevoegen aan de array, anders moet je index wijzigen
+			if(spel.getLength() == 100) {
+			    spel.setArray(i, status);
+			}//als de array niet meer leeg is
+			if(spel.getLength() != 100){
+			    spel.addArray(status);
+			}//als de array nog leeg is
 			
-			//bepaald of het een wit of zwart vakje moet worden.
-			boolean check = ((i/10)%2 == 0 && i%2 == 0) || ((i/10)%2 == 1 && i%2 == 1);
-			BoardTileStatus status = null;
-			if(check && i < 40) status = BoardTileStatus.ZWART;
-			else if(check && i > 59) status = BoardTileStatus.WIT;
-			else if(check) status = BoardTileStatus.LEEG;
-			if(!check) { status = BoardTileStatus.NIETSPEELBAAR; /*buttons[i].setText("X");*/ }
-			buttons[i].getStyleClass().add(status == null ? "" : status.name());
-			
-			//als de array nog leeg is, dus je hebt het spel voor het eerst gerunt, dan moet je toevoegen aan de array, anders moet je index wijzigen
-			if(spel.getLength() == 100) spel.setArray(i, status);//als de array niet meer leeg is
-			if(spel.getLength() != 100) spel.addArray(status);//als de array nog leeg is
-			
-			if(check) buttons[i].getStyleClass().add("ZWARTVAKJE");
-			else buttons[i].getStyleClass().add("WITVAKJE");
+			if(check){
+			    buttons[i].getStyleClass().add("ZWARTVAKJE");
+            }
+			else{ buttons[i].getStyleClass().add("WITVAKJE");
+			}
+
 		}
 	}
 
-	@Override
+    @Override
 	public void handle(ActionEvent event) {
-		// TODO Auto-generated method stub
 		if(event.getSource() == buttons[100])
 		{
 			spel.reset();
 			this.reset();
 			updateBord();
-			System.out.println(spel.toString());
 		}
-		else if(event.getSource() == cb2) spel.flipConfirm();
-		else
-		{
-			for(int i = 0; i < buttons.length-1; i++)
-			{
-				if(event.getSource().equals(buttons[i]))
-				{
-					if(spel.isVeldSpeelbaar(i)) 
-					{
-					    updateBord();
-					}
-					if (spel.getDoFocus()) 
-					{
-						//boolean useless_assignment = (buttons[i].getStyleClass().contains("FOCUS")) ? buttons[i].getStyleClass().remove("FOCUS") : buttons[i].getStyleClass().add("FOCUS");
-						spel.setDoFocus(false);
-					}
-					System.out.println("veld_clicked; index: " + i);
-				}
-			}
-		}
+		else if(event.getSource() == cb2){
+		    spel.flipConfirm();
+        }
+		else {
+            checkSpeelbaar(event);
+        }
 	}
 
-	public void updateBord()
-	{
-		System.out.println(spel.getSpelerObject().getSteenHoeveelheid());
+    private void checkSpeelbaar(ActionEvent event) {
+        for(int i = 0; i < buttons.length-1; i++)
+        {
+            if(event.getSource().equals(buttons[i]))
+            {
+                if(spel.isVeldSpeelbaar(i))
+                {
+                    updateBord();
+                }
+                if (spel.getDoFocus())
+                {
+                    spel.setDoFocus(false);
+                }
 
+            }
+        }
+    }
+
+    public void updateBord()
+	{
 		labels[3].setText("Stenen W: " + spel.getSpecifiekeSpeler(0).getSteenHoeveelheid());
 		labels[2].setText("Stenen Z: " + spel.getSpecifiekeSpeler(1).getSteenHoeveelheid());
 		labels[1].setText("Speler: " + spel.getSpelerObject().getNaam());
@@ -159,4 +161,40 @@ public class DamspelApp extends Application implements EventHandler<ActionEvent>
 		Application.launch(args);
 	}
 
+    private class DecideColor {
+        private int i;
+        private boolean check;
+        private BoardTileStatus status;
+
+        public DecideColor(int i) {
+            this.i = i;
+        }
+
+        public boolean isCheck() {
+            return check;
+        }
+
+        public BoardTileStatus getStatus() {
+            return status;
+        }
+
+        public DecideColor invoke() {
+            //bepaald of het een wit of zwart vakje moet worden.
+            BOOLEAN;
+            status = null;
+            if(check && i < 40) {
+                status = BoardTileStatus.ZWART;
+            }
+            else if(check && i > 59){
+                status = BoardTileStatus.WIT;
+            }
+            else if(check){
+                status = BoardTileStatus.LEEG;
+            }
+            if(!check) {
+                status = BoardTileStatus.NIETSPEELBAAR;  }
+            buttons[i].getStyleClass().add(status == null ? "" : status.name());
+            return this;
+        }
+    }
 }

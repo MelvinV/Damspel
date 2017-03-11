@@ -1,24 +1,25 @@
+package src;
 public class SpelerBuilder {
     private String naam;
-    private int aantal_stenen;
-    private boolean laatste_zet;
+    private int aantalStenen;
+    private boolean laatsteZet;
 
     public SpelerBuilder setNaam(String naam) {
         this.naam = naam;
         return this;
     }
 
-    public SpelerBuilder setAantal_stenen(int aantal_stenen) {
-        this.aantal_stenen = aantal_stenen;
+    public SpelerBuilder setAantalStenen(int aantalStenen) {
+        this.aantalStenen = aantalStenen;
         return this;
     }
 
-    public SpelerBuilder setLaatste_zet(boolean laatste_zet) {
-        this.laatste_zet = laatste_zet;
+    public SpelerBuilder setLaatsteZet(boolean laatsteZet) {
+        this.laatsteZet = laatsteZet;
         return this;
     }
 
     public Speler createSpeler() {
-        return Speler.createSpeler(naam, aantal_stenen, laatste_zet);
+        return Speler.createSpeler(naam, aantalStenen, laatsteZet);
     }
 }

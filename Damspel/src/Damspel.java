@@ -1,6 +1,9 @@
-import java.util.ArrayList;
+package src;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+
+import java.util.ArrayList;
 
 
 public class Damspel {
